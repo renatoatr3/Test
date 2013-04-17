@@ -7,29 +7,24 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
+
 
 import android.app.Activity;
-import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.os.StrictMode.ThreadPolicy;
+import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
-import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.SimpleAdapter;
-import android.widget.TextView;
 
-public class ShowActivity extends ListActivity {
-    private static final String Name = "name";
-    private static final String Salary = "salary";
+public class ShowActivity extends Activity{
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -38,12 +33,11 @@ public class ShowActivity extends ListActivity {
 		ListView listview = (ListView) findViewById(R.id.list_view);
 		
 		final ArrayList<String> list = new ArrayList<String>();
-		ArrayList<HashMap<String, String>> contactList = new ArrayList<HashMap<String, String>>();
 		
 		ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 		
-		String response = makeRequest("http://192.168.0.104:3000/employees.json");
+		final String response = makeRequest("http://192.168.0.104:3000/employees.json");
 		
 		
 		
@@ -61,23 +55,33 @@ public class ShowActivity extends ListActivity {
 		}
 		ArrayAdapter<String> mArrayAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, list);
 		listview.setAdapter(mArrayAdapter);
+		
+		listview.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view, int position,
+					long id) {
+				// TODO Auto-generated method stub
+				JSONArray json;
+				try {
+				json = new JSONArray(response);
+				
+				String name = json.getJSONObject(position).getString("name");
+				String salary = json.getJSONObject(position).getString("salary");
+				
+				// Starting new intent
+				Intent in = new Intent(ShowActivity.this, SingleMenuItemActivity.class);
+				in.putExtra("name", name);
+				in.putExtra("salary", salary);
+				startActivity(in);
+				
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+			}
+		});
 	
-	ListAdapter adapter = new SimpleAdapter(this, contactList,
-            R.layout.show,
-            new String[] {Name, Salary }, new int[] {
-                    R.id.name, R.id.salary });
-
-    setListAdapter(adapter);
-
-    // selecting single ListView item
-    ListView lv = getListView();
-
-    lv.setOnItemClickListener(new OnItemClickListener() {
-    	public void onItem(AdapterView<?> pare) {
-			
-		}
-	});
-}
+	}
 	
 	private String makeRequest(String urlAdress) {
 		HttpURLConnection con = null;

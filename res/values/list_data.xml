@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="adobe_products">
+    <item>Name: %1s</item>
+    <item>Salary: %1s</item>
+    </string-array>
+</resources>
